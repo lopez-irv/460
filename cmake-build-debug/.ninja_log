@@ -1,0 +1,9 @@
+# ninja log v5
+5	1494	7658768829333648	CMakeFiles/untitled.dir/main.cpp.obj	3dd81aa5e77c18f4
+15	533	7658408913964792	CMakeFiles/untitled.dir/TreeNode.cpp.obj	55d06d8783730de8
+1495	1833	7658768832698050	untitled.exe	8b0d4ce175907ec5
+5	383	7665344878978991	CMakeFiles/untitled.dir/TreeNode.cpp.obj	4b8fbc210ebf9b6b
+10	1200	7665344887111834	CMakeFiles/untitled.dir/main.cpp.obj	42391bb05ea2fec6
+1200	1470	7665344889792136	untitled.exe	8b0d4ce175907ec5
+5	1379	7665346498256054	CMakeFiles/untitled.dir/main.cpp.obj	42391bb05ea2fec6
+1380	1639	7665346500836182	untitled.exe	8b0d4ce175907ec5
