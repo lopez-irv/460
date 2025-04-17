@@ -1,18 +1,20 @@
-function   int   sum_of_first_n_squares   (   int   n   ) 
-{ 
-int   sum   ; 
-sum   =   0   ; 
-if   (   n   >=   1   ) 
-{ 
-sum   =   n   *   (   n   +   1   )   *   (   2   *   n   +   1   )   /   6   ; 
-} 
-return   sum   ; 
-} 
+char   my_string   [   1024   ]   ; 
 procedure   main   (   void   ) 
 { 
-int   n   ; 
-int   sum   ; 
-n   =   100   ; 
-sum   =   sum_of_first_n_squares   (   n   )   ; 
-printf   (   "   sum of the squares of the first %d numbers = %d\n   "   ,   n   ,   sum   )   ; 
+result   =   TRUE   ; 
+my_string   [   0   ]   =   '   \x0   '   ; 
+number   =   3   ; 
 } 
+int   number   ; 
+function   bool   random_long_parameter_list   (   int   ensity   ,   char   ter   ,   int   rospective   ,   int   egrity   ,   char   latan   ,   char   coal   ,   int   elligent   ,   bool   lean   ,   char   treuse   ,   char   ming   ,   int   uitive   ) 
+{ 
+i   =   1   ; 
+j   =   1000   ; 
+k   =   25   ; 
+return   TRUE   ; 
+} 
+bool   result   ; 
+procedure   do_nothing   (   void   ) 
+{ 
+} 
+int   i   ,   j   ,   k   ; 

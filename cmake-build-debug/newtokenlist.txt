@@ -1,0 +1,57 @@
+DECLARATION
+DECLARATION
+L_BRACE 
+assignment
+result
+=
+TRUE
+end assignemnt
+assignment
+my_string
+[
+0
+]
+=
+'
+\x0
+'
+end assignemnt
+assignment
+number
+=
+3
+end assignemnt
+R_BRACE 
+DECLARATION
+DECLARATION
+L_BRACE 
+assignment
+i
+=
+1
+end assignemnt
+assignment
+j
+=
+1000
+end assignemnt
+assignment
+k
+=
+25
+end assignemnt
+assignment
+return
+TRUE
+end assignemnt
+R_BRACE 
+DECLARATION
+DECLARATION
+L_BRACE 
+R_BRACE 
+DECLARATION
+DECLARATION
+DECLARATION
+assignment
+
+end assignemnt

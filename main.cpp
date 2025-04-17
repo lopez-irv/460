@@ -541,12 +541,81 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
     }
 }
 
+
+//function to create the new token list
+//takes the token list that is outputed form part 2, reads through it and creates another accordingly
+void secondTokenList(string originalList, string newList) {
+    ifstream inputfile(originalList);
+    ofstream outputfile(newList);
+
+    string tokenType;
+    string tokenName;
+
+
+    while (getline(inputfile, tokenType)){
+        getline(inputfile, tokenName);
+
+        if (tokenName == "function" || tokenName == "procedure") {
+            outputfile << "DECLARATION" << endl;
+            while (tokenName != ")") {
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+        }
+        //int i,j,k;
+        else if (tokenName == "int" || tokenName == "char" || tokenName == "bool") {
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            outputfile << "DECLARATION" << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            if (tokenName == "[") {
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+            while(tokenName != ";") {
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+                outputfile << "DECLARATION" << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+        }
+        else if (tokenName == "{" || tokenName == "}") {
+            outputfile << tokenType << endl;
+        }
+        else if (tokenName == "return") {
+            outputfile << tokenName << endl;
+
+        }
+
+        else{
+            outputfile << "assignment" << endl;
+            while (tokenName != ";"){
+                outputfile << tokenName << endl;
+                if (getline(inputfile, tokenType)) {
+                    getline(inputfile, tokenName);
+                }
+                else
+                    break;
+            }
+
+            outputfile << "end assignemnt" << endl;
+
+        }
+    }
+}
+
 int main() {
 
     string testFile;
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
-    testFile = "programming_assignment_5-test_file_1.c";
+    testFile = "programming_assignment_5-test_file_4.c";
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
@@ -668,6 +737,72 @@ int main() {
 
 
     //start of assignment 3
+    /*
+    ifstream ffs ("tokenlist.txt");
+
+    if (!ffs) {
+        cerr << "outpy file tokenlist could not be opened";
+    }
+
+    string tokenType;
+    string tokenName;
+
+    getline(ffs, tokenType);
+    getline(ffs, tokenName);
+    TreeNode *tmpNode = new TreeNode(tokenName, tokenType);
+    LCRSTree *MyTree = new LCRSTree(tmpNode);
+
+
+    while (getline(ffs, tokenType)) {
+        getline(ffs, tokenName);
+
+        tmpNode = new TreeNode(tokenName, tokenType);
+        if (tokenName == "{" || tokenName == "}" ) {
+            MyTree->addChild(tmpNode);
+            getline(ffs, tokenType);
+            getline(ffs, tokenName);
+            tmpNode = new TreeNode(tokenName, tokenType);
+            if (tokenName == "}") {
+                MyTree->addChild(tmpNode);
+                getline(ffs, tokenType);
+                getline(ffs, tokenName);
+                tmpNode = new TreeNode(tokenName, tokenType);
+                MyTree->addChild(tmpNode);
+            }
+            else{
+                MyTree->addChild(tmpNode);
+            }
+        }
+        else if ( tokenName == ";"){
+            MyTree->addSibling(tmpNode);
+            getline(ffs, tokenType);
+            getline(ffs, tokenName);
+            tmpNode = new TreeNode(tokenName, tokenType);
+            if (tokenName == "}") {
+                MyTree->addChild(tmpNode);
+                getline(ffs, tokenType);
+                getline(ffs, tokenName);
+                tmpNode = new TreeNode(tokenName, tokenType);
+                MyTree->addChild(tmpNode);
+            }
+            else{
+                MyTree->addChild(tmpNode);
+            }
+
+        }
+        else{
+            MyTree->addSibling(tmpNode);
+        }
+
+    }
+
+    MyTree->printTree();
+    */
+
+    //start of assinment 4
+    createSymbolTable(tokenStack);
+
+    //start of assignment 5
     ifstream ffs ("tokenlist.txt");
 
     if (!ffs) {
@@ -728,8 +863,10 @@ int main() {
 
     MyTree->printTree();
 
-    //start of assinment 4
-    createSymbolTable(tokenStack);
+    string originalList = "tokenlist.txt";
+    string newList = "newtokenlist.txt";
+
+    secondTokenList(originalList, newList);
 
     return 0;
 }
