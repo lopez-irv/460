@@ -541,7 +541,7 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
     }
 }
 
-
+// this is where the new token list function starts
 //function to create the new token list
 //takes the token list that is outputed form part 2, reads through it and creates another accordingly
 void secondTokenList(string originalList, string newList) {
@@ -590,7 +590,71 @@ void secondTokenList(string originalList, string newList) {
         }
         else if (tokenName == "return") {
             outputfile << tokenName << endl;
-
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != ";") {
+                outputfile << tokenName << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+            outputfile << "end return" << endl;
+        }
+        else if (tokenName == "while") {
+            outputfile << "while" << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != ")") {
+                outputfile << tokenName << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+            outputfile << "end while" << endl;
+        }
+        else if (tokenName == "for") {
+            outputfile << "for" << endl;
+            outputfile << "statement 1" << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != ";") {
+                outputfile << tokenName << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+            outputfile << "statement 2" << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != ";") {
+                outputfile << tokenName << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+            outputfile << "statement 3" << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != ")") {
+                outputfile << tokenName << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+        }
+        else if (tokenName == "if") {
+            outputfile << "if" << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            outputfile << tokenName << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != "{") {
+                outputfile << tokenName << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+            outputfile << "end if" << endl;
+            outputfile << "L_BRACE" << endl;
         }
 
         else{
@@ -615,7 +679,8 @@ int main() {
     string testFile;
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
-    testFile = "programming_assignment_5-test_file_4.c";
+    //change the file you want to test here
+    testFile = "programming_assignment_5-test_file_5.c";
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
