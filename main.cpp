@@ -541,6 +541,75 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
     }
 }
 
+int getPrecedence(string token) { //"+", "-", "*", "/", "%", "(", ")"
+    if(token == "=") {
+        return 1;
+    }
+    if(token == "+" || token == "-") {
+        return 2;
+    }
+    if(token == "/" || token == "%" || token == "*") {
+        return 3;
+    }
+    if(token == "(" ) {
+        return 5;
+    }
+    if(token == ")") {
+        return 6;
+    }
+    return 0; //not a valid operator.
+}
+bool isOperator (string Operator) {
+    vector <string> operators {"+", "-", "*", "/", "%", "(", ")", "="}; //all the stuff that will go to the stack
+    for(int i =0; i < operators.size(); ++i) {
+        if(Operator == operators.at(i)) {
+            return true;
+        }
+    }
+    return false;
+}
+//sum = sum_of_first_n_squares ( n );        START
+//sum sum_of_n_first_squares ( n ) =         WANT
+//sum sum_of_first_n_squares n ) ( =          HAVE
+void infixToPostfix(vector<string>& infix) {
+    vector<string> postFix;
+    vector<string> operatorStack;
+
+    for (const string& token : infix) {
+        if (!isOperator(token)) {
+            postFix.push_back(token);
+        }
+        else if (token == "(") {
+            operatorStack.push_back(token);
+        }
+        else if (token == ")") {
+            while (!operatorStack.empty() && operatorStack.back() != "(") {
+                postFix.push_back(operatorStack.back());
+                operatorStack.pop_back();
+            }
+            if (!operatorStack.empty() && operatorStack.back() == "(") {
+                operatorStack.pop_back(); // remove the '('
+            }
+        }
+        else { // token is an operator
+            while (!operatorStack.empty() &&
+                   getPrecedence(token) <= getPrecedence(operatorStack.back()) &&
+                   operatorStack.back() != "(") {
+                postFix.push_back(operatorStack.back());
+                operatorStack.pop_back();
+            }
+            operatorStack.push_back(token);
+        }
+    }
+
+    while (!operatorStack.empty()) {
+        postFix.push_back(operatorStack.back());
+        operatorStack.pop_back();
+    }
+
+    infix = postFix;
+}
+
 // this is where the new token list function starts
 //function to create the new token list
 //takes the token list that is outputed form part 2, reads through it and creates another accordingly
@@ -550,7 +619,7 @@ void secondTokenList(string originalList, string newList) {
 
     string tokenType;
     string tokenName;
-
+    vector<string> postFixAssignment;
 
     while (getline(inputfile, tokenType)){
         getline(inputfile, tokenName);
@@ -658,17 +727,24 @@ void secondTokenList(string originalList, string newList) {
         }
 
         else{
-            outputfile << "assignment" << endl;
+            outputfile << "assignment" << endl; // CRISTIANS LOGIC WILL GO HERE....
+            //postFixAssignment.push_back(tokenName);
             while (tokenName != ";"){
-                outputfile << tokenName << endl;
+                //outputfile << tokenName << endl;
+                postFixAssignment.push_back(tokenName);
                 if (getline(inputfile, tokenType)) {
                     getline(inputfile, tokenName);
                 }
                 else
                     break;
             }
+            infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
+            //add parenthesis around parameters.
+            for (const string& token : postFixAssignment) {
+                outputfile << token << " ";
+            }
 
-            outputfile << "end assignemnt" << endl;
+            outputfile << "\nend assignemnt" << endl;
 
         }
     }
@@ -680,7 +756,7 @@ int main() {
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
     //change the file you want to test here
-    testFile = "programming_assignment_5-test_file_5.c";
+    testFile = "programming_assignment_5-test_file_2.c";
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
