@@ -768,6 +768,22 @@ void secondTokenList(string originalList, string newList) {
             outputfile << tokenName << endl;
             outputfile << "end else\n";
         }
+        else if (tokenName == "printf") {
+            outputfile << "printf" << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != ";") {
+                if (tokenName == "\"" || tokenName == "," || tokenName == "(" || tokenName == ")") {
+                    getline(inputfile, tokenType);
+                    getline(inputfile, tokenName);
+                } else {
+                    outputfile << tokenName << endl;
+                    getline(inputfile, tokenType);
+                    getline(inputfile, tokenName);
+                }
+            }
+            outputfile << "end print" << endl;
+        }
         else{
             outputfile << "assignment" << endl; // CRISTIANS LOGIC WILL GO HERE....
             //postFixAssignment.push_back(tokenName);
@@ -987,7 +1003,7 @@ int main() {
     createSymbolTable(tokenStack);
 
     //start of assignment 5
-    ifstream ffs ("tokenlist.txt");
+    ifstream ffs ("newtokenlist.txt");
 
     if (!ffs) {
         cerr << "outpy file tokenlist could not be opened";
