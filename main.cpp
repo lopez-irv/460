@@ -666,7 +666,7 @@ void secondTokenList(string originalList, string newList) {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
-            outputfile << "END CALL" << endl;
+            outputfile << ";" << endl;
 
         }
 
@@ -676,6 +676,7 @@ void secondTokenList(string originalList, string newList) {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
+            outputfile << ";" << endl;
         }
         //int i,j,k;
         else if (tokenName == "int" || tokenName == "char" || tokenName == "bool") {
@@ -699,9 +700,11 @@ void secondTokenList(string originalList, string newList) {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
+            outputfile << ";" << endl;
         }
         else if (tokenName == "{" || tokenName == "}") {
-            outputfile << tokenType << endl;
+            outputfile << tokenName << endl;
+            //outputfile << ";" << endl;
         }
         else if (tokenName == "return") {
             outputfile << tokenName << endl;
@@ -712,7 +715,7 @@ void secondTokenList(string originalList, string newList) {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
-            outputfile << "end return" << endl;
+            outputfile << ";" << endl;
         }
         else if (tokenName == "while") {
             outputfile << "while" << endl;
@@ -725,11 +728,11 @@ void secondTokenList(string originalList, string newList) {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
-            outputfile << "end while" << endl;
+            outputfile << ";" << endl;
         }
         else if (tokenName == "for") {
-            outputfile << "for" << endl;
-            outputfile << "statement 1" << endl;
+            //outputfile << "for" << endl;
+            outputfile << "for statement 1" << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             getline(inputfile, tokenType);
@@ -738,8 +741,10 @@ void secondTokenList(string originalList, string newList) {
                 outputfile << tokenName << endl;
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
+
             }
-            outputfile << "statement 2" << endl;
+            outputfile << ";" << endl;
+            outputfile << "for statement 2" << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             while (tokenName != ";") {
@@ -747,7 +752,8 @@ void secondTokenList(string originalList, string newList) {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
-            outputfile << "statement 3" << endl;
+            outputfile << ";" << endl;
+            outputfile << "for statement 3" << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             while (tokenName != ")") {
@@ -755,6 +761,7 @@ void secondTokenList(string originalList, string newList) {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
+            outputfile << ";" << endl;
         }
         else if (tokenName == "if") {
             outputfile << "if" << endl;
@@ -776,15 +783,15 @@ void secondTokenList(string originalList, string newList) {
             }
             outputfile << "\n";
             postFixAssignment.clear();
-            outputfile << "end if" << endl;
-            outputfile << "L_BRACE" << endl;
+            outputfile << ";" << endl;
+            outputfile << "{" << endl;
         }
         else if (tokenName == "else") {
             outputfile << tokenName << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             outputfile << tokenName << endl;
-            outputfile << "end else\n";
+            outputfile << ";" << endl;
         }
         else if (tokenName == "printf") {
             outputfile << "printf" << endl;
@@ -800,7 +807,7 @@ void secondTokenList(string originalList, string newList) {
                     getline(inputfile, tokenName);
                 }
             }
-            outputfile << "end print" << endl;
+            outputfile << ";" << endl;
         }
         else{
             outputfile << "assignment" << endl; // CRISTIANS LOGIC WILL GO HERE....
@@ -821,7 +828,7 @@ void secondTokenList(string originalList, string newList) {
             }
             postFixAssignment.clear();
 
-            outputfile << "\nend assignemnt" << endl;
+            outputfile << "\n;" << endl;
 
         }
     }
@@ -833,7 +840,7 @@ int main() {
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
     //change the file you want to test here
-    testFile = "programming_assignment_5-test_file_1.c";
+    testFile = "programming_assignment_5-test_file_5.c";
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
@@ -1024,59 +1031,46 @@ int main() {
     ifstream ffs ("newtokenlist.txt");
 
     if (!ffs) {
-        cerr << "outpy file tokenlist could not be opened";
+        cerr << "outpy file newtokenlist could not be opened";
     }
 
-    string tokenType;
+    //string tokenType;
     string tokenName;
+    bool prevWasBrace = false;
 
-    getline(ffs, tokenType);
+    //getline(ffs, tokenType);
     getline(ffs, tokenName);
-    TreeNode *tmpNode = new TreeNode(tokenName, tokenType);
+    TreeNode *tmpNode = new TreeNode(tokenName);
     LCRSTree *MyTree = new LCRSTree(tmpNode);
 
 
-    while (getline(ffs, tokenType)) {
-        getline(ffs, tokenName);
-
-        tmpNode = new TreeNode(tokenName, tokenType);
-        if (tokenName == "{" || tokenName == "}" ) {
+    while (getline(ffs, tokenName)) {
+        tmpNode = new TreeNode(tokenName);
+        if (prevWasBrace) {
+            if (tokenName == ";")
+                continue;
+            else if (tokenName == "{" || tokenName == "}") {
+                MyTree->addChild(tmpNode);
+                prevWasBrace = true;
+                continue;
+            }
+            else {
+                MyTree->addChild(tmpNode);
+                prevWasBrace = false;
+                continue;
+            }
+        }
+        if (tokenName == "{" || tokenName == "}") {
             MyTree->addChild(tmpNode);
-            getline(ffs, tokenType);
-            getline(ffs, tokenName);
-            tmpNode = new TreeNode(tokenName, tokenType);
-            if (tokenName == "}") {
-                MyTree->addChild(tmpNode);
-                getline(ffs, tokenType);
-                getline(ffs, tokenName);
-                tmpNode = new TreeNode(tokenName, tokenType);
-                MyTree->addChild(tmpNode);
-            }
-            else{
-                MyTree->addChild(tmpNode);
-            }
+            prevWasBrace = true;
         }
-        else if ( tokenName == ";"){
+        else if (tokenName == ";") {
+            prevWasBrace = true;
+        }
+        else {
             MyTree->addSibling(tmpNode);
-            getline(ffs, tokenType);
-            getline(ffs, tokenName);
-            tmpNode = new TreeNode(tokenName, tokenType);
-            if (tokenName == "}") {
-                MyTree->addChild(tmpNode);
-                getline(ffs, tokenType);
-                getline(ffs, tokenName);
-                tmpNode = new TreeNode(tokenName, tokenType);
-                MyTree->addChild(tmpNode);
-            }
-            else{
-                MyTree->addChild(tmpNode);
-            }
-
+            prevWasBrace = false;
         }
-        else{
-            MyTree->addSibling(tmpNode);
-        }
-
     }
 
     MyTree->printTree();

@@ -18,6 +18,13 @@ public:
 
     }
 
+    TreeNode(string name) {
+        child = nullptr;
+        sibling = nullptr;
+        TokenName = name;
+    }
+
+
     string get_NodeName(){
         return TokenName;
     }
@@ -46,7 +53,7 @@ private:
     TreeNode* child;
     TreeNode* sibling;
     string TokenName;
-    string TokenType;
+    string TokenType ;
 
 };
 
