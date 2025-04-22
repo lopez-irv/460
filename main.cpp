@@ -642,7 +642,8 @@ void secondTokenList(string originalList, string newList) {
 
     while (getline(inputfile, tokenType)){
         getline(inputfile, tokenName);
-
+        if(tokenName == "")
+            break;
         if (isAFunction(functionList, tokenName)) {
             outputfile << "CALL" << endl;
             outputfile << tokenName << endl;
@@ -833,6 +834,15 @@ void secondTokenList(string originalList, string newList) {
             }
             infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
             //add parenthesis around parameters.
+            //new logic to add parenthesis if needed to an assignment if theres a function call.
+            string functionName;
+            for(int i = 0; i <postFixAssignment.size(); ++i) {
+                functionName = postFixAssignment.at(i);
+                if((isAFunction(functionList, functionName))) {
+                    postFixAssignment.insert(postFixAssignment.begin() + i + 1, "(");
+                    postFixAssignment.insert(postFixAssignment.begin() + postFixAssignment.size() -1, ")");
+                }
+            }
             for (const string& token : postFixAssignment) {
                 outputfile << token << "\n";
             }
@@ -850,7 +860,7 @@ int main() {
     //cin >> testFile;
     //change the file you want to test here
 
-    testFile = "programming_assignment_5-test_file_2.c";
+    testFile = "programming_assignment_5-test_file_1.c";
 
     ifstream inputfile(testFile);
     if (!inputfile){
