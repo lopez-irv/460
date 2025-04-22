@@ -684,6 +684,7 @@ void secondTokenList(string originalList, string newList) {
             while(tokenName != ";") {
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
+                outputfile << ";" << endl;
                 outputfile << "DECLARATION" << endl;
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
@@ -691,7 +692,10 @@ void secondTokenList(string originalList, string newList) {
             outputfile << ";" << endl;
         }
         else if (tokenName == "{" || tokenName == "}") {
-            outputfile << tokenName << endl;
+            if (tokenName == "{")
+                outputfile << "BEGIN BLOCK" << endl;
+            else
+                outputfile << "END BLOCK" << endl;
             //outputfile << ";" << endl;
         }
         else if (tokenName == "return") {
@@ -1070,7 +1074,7 @@ int main() {
         if (prevWasBrace) {
             if (tokenName == ";")
                 continue;
-            else if (tokenName == "{" || tokenName == "}") {
+            else if (tokenName == "BEGIN BLOCK" || tokenName == "END BLOCK") {
                 MyTree->addChild(tmpNode);
                 prevWasBrace = true;
                 continue;
@@ -1081,7 +1085,7 @@ int main() {
                 continue;
             }
         }
-        if (tokenName == "{" || tokenName == "}") {
+        if (tokenName == "BEGIN BLOCK" || tokenName == "END BLOCK") {
             MyTree->addChild(tmpNode);
             prevWasBrace = true;
         }
