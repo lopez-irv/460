@@ -546,24 +546,34 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
 
 int getPrecedence(string token) { //"+", "-", "*", "/", "%", "(", ")"
     if(token == "=") {
+        return -1;
+    }
+    if(token == "||") {
+        return 0;
+    }
+    if(token == "&&") {
         return 1;
     }
-    if(token == "+" || token == "-") {
+    if(token == "==" || token == "!=") {
         return 2;
     }
-    if(token == "/" || token == "%" || token == "*") {
+    if (token == "<" || token == "<=" || token == ">" || token == ">=") {
         return 3;
     }
-    if(token == "(" ) {
+
+    if(token == "+" || token == "-") {
+        return 4;
+    }
+    if(token == "/" || token == "%" || token == "*") {
         return 5;
     }
-    if(token == ")") {
+    if(token == "(" || token == ")" ) {
         return 6;
     }
-    return 0; //not a valid operator.
+    return -99; //not a valid operator.
 }
 bool isOperator (string Operator) {
-    vector <string> operators {"+", "-", "*", "/", "%", "(", ")", "="}; //all the stuff that will go to the stack
+    vector <string> operators {"+", "-", "*", "/", "%", "(", ")", "=", "!=", "==", "<=", "<", ">", ">=", "&&", "||", ""}; //all the stuff that will go to the stack
     for(int i =0; i < operators.size(); ++i) {
         if(Operator == operators.at(i)) {
             return true;
@@ -750,14 +760,22 @@ void secondTokenList(string originalList, string newList) {
             outputfile << "if" << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
-            outputfile << tokenName << endl;
+            //outputfile << tokenName << endl;
+            postFixAssignment.push_back(tokenName);
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             while (tokenName != "{") {
-                outputfile << tokenName << endl;
+                postFixAssignment.push_back(tokenName);
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
+            infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
+            //add parenthesis around parameters.
+            for (const string& token : postFixAssignment) {
+                outputfile << token << " ";
+            }
+            outputfile << "\n";
+            postFixAssignment.clear();
             outputfile << "end if" << endl;
             outputfile << "L_BRACE" << endl;
         }
@@ -815,7 +833,7 @@ int main() {
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
     //change the file you want to test here
-    testFile = "programming_assignment_5-test_file_5.c";
+    testFile = "programming_assignment_5-test_file_1.c";
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
