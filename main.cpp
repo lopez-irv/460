@@ -702,7 +702,7 @@ void secondTokenList(string originalList, string newList) {
             outputfile << "end return" << endl;
         }
         else if (tokenName == "while") {
-            outputfile << "while" << " ";
+            outputfile << "while" << "\n";
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             postFixAssignment.push_back(tokenName);
@@ -716,9 +716,8 @@ void secondTokenList(string originalList, string newList) {
             infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
             //add parenthesis around parameters.
             for (const string& token : postFixAssignment) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
-            outputfile << "\n";
             postFixAssignment.clear();
             outputfile << "end while" << endl;
         }
@@ -756,25 +755,25 @@ void secondTokenList(string originalList, string newList) {
             }
             //three for loops to output for loop tokens in postfix.
             infixToPostfix(pf1), infixToPostfix(pf2), infixToPostfix(pf3);
-            outputfile << "ForExpression1 ";
+            outputfile << "For Expression 1\n";
             for (const string& token : pf1) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
             outputfile << "\n";
-            outputfile << "ForExpression2 ";
+            outputfile << "For Expression 2\n";
             for (const string& token : pf2) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
             outputfile << "\n";
-            outputfile<< "ForExpression3 ";
+            outputfile<< "For Expression 3\n";
             for (const string& token : pf3) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
-            outputfile << "\nend for\n";
+            outputfile << "end for\n";
             pf1.clear(), pf2.clear(), pf3.clear();
         }
         else if (tokenName == "if") {
-            outputfile << "if" << " ";
+            outputfile << "if" << "\n";
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             //outputfile << tokenName << endl;
@@ -789,9 +788,8 @@ void secondTokenList(string originalList, string newList) {
             infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
             //add parenthesis around parameters.
             for (const string& token : postFixAssignment) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
-            outputfile << "\n";
             postFixAssignment.clear();
             outputfile << "end if" << endl;
             outputfile << "L_BRACE" << endl;
@@ -820,7 +818,7 @@ void secondTokenList(string originalList, string newList) {
             outputfile << "end print" << endl;
         }
         else{
-            outputfile << "assignment" << " "; // CRISTIANS LOGIC WILL GO HERE....
+            outputfile << "assignment" << "\n"; // CRISTIANS LOGIC WILL GO HERE....
             //postFixAssignment.push_back(tokenName);
             while (tokenName != ";"){
                 //outputfile << tokenName << endl;
@@ -834,11 +832,11 @@ void secondTokenList(string originalList, string newList) {
             infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
             //add parenthesis around parameters.
             for (const string& token : postFixAssignment) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
             postFixAssignment.clear();
 
-            outputfile << "\nend assignemnt" << endl;
+            outputfile << "end assignment" << endl;
 
         }
     }
@@ -850,7 +848,7 @@ int main() {
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
     //change the file you want to test here
-    testFile = "programming_assignment_5-test_file_5.c";
+    testFile = "programming_assignment_5-test_file_2.c";
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
