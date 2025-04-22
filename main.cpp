@@ -544,36 +544,20 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
     }
 }
 
-int getPrecedence(string token) { //"+", "-", "*", "/", "%", "(", ")"
-    if(token == "=") {
-        return -1;
-    }
-    if(token == "||") {
-        return 0;
-    }
-    if(token == "&&") {
-        return 1;
-    }
-    if(token == "==" || token == "!=") {
-        return 2;
-    }
-    if (token == "<" || token == "<=" || token == ">" || token == ">=") {
-        return 3;
-    }
-
-    if(token == "+" || token == "-") {
-        return 4;
-    }
-    if(token == "/" || token == "%" || token == "*") {
-        return 5;
-    }
-    if(token == "(" || token == ")" ) {
-        return 6;
-    }
-    return -99; //not a valid operator.
+int getPrecedence(const string& token) {
+    if (token == "||") return 0;
+    if (token == "&&") return 1;
+    if (token == "==" || token == "!=") return 2;
+    if (token == "<" || token == "<=" || token == ">" || token == ">=") return 3;
+    if (token == "+" || token == "-") return 4;
+    if (token == "*" || token == "/" || token == "%") return 5;
+    if (token == "!") return 6; // Unary NOT - highest precedence
+    if (token == "=") return -1;
+    if (token == "(" || token == ")") return 99; // special handling
+    return -99;
 }
 bool isOperator (string Operator) {
-    vector <string> operators {"+", "-", "*", "/", "%", "(", ")", "=", "!=", "==", "<=", "<", ">", ">=", "&&", "||", ""}; //all the stuff that will go to the stack
+    vector <string> operators {"+", "-", "*", "/", "%", "(", ")", "=", "!=", "==", "<=", "<", ">", ">=", "&&", "||", "!"}; //all the stuff that will go to the stack
     for(int i =0; i < operators.size(); ++i) {
         if(Operator == operators.at(i)) {
             return true;
@@ -652,6 +636,9 @@ void secondTokenList(string originalList, string newList) {
     string tokenType;
     string tokenName;
     vector<string> postFixAssignment;
+    vector<string> pf1;
+    vector<string> pf2;
+    vector<string> pf3;
 
     while (getline(inputfile, tokenType)){
         getline(inputfile, tokenName);
@@ -718,53 +705,77 @@ void secondTokenList(string originalList, string newList) {
             outputfile << ";" << endl;
         }
         else if (tokenName == "while") {
-            outputfile << "while" << endl;
+            outputfile << "while" << "\n";
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
+            postFixAssignment.push_back(tokenName);
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
-            while (tokenName != ")") {
-                outputfile << tokenName << endl;
+            while (tokenName != "{") {
+                postFixAssignment.push_back(tokenName);
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
+            infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
+            //add parenthesis around parameters.
+            for (const string& token : postFixAssignment) {
+                outputfile << token << "\n";
+            }
+            postFixAssignment.clear();
             outputfile << ";" << endl;
         }
         else if (tokenName == "for") {
+
             //outputfile << "for" << endl;
-            outputfile << "for statement 1" << endl;
+            //outputfile << "statement 1" << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             while (tokenName != ";") {
-                outputfile << tokenName << endl;
+                //outputfile << tokenName << endl;
+                pf1.push_back(tokenName);
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
 
             }
-            outputfile << ";" << endl;
-            outputfile << "for statement 2" << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             while (tokenName != ";") {
-                outputfile << tokenName << endl;
+                //outputfile << tokenName << endl;
+                pf2.push_back(tokenName);
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
-            outputfile << ";" << endl;
-            outputfile << "for statement 3" << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             while (tokenName != ")") {
-                outputfile << tokenName << endl;
+                //outputfile << tokenName << endl;
+                pf3.push_back(tokenName);
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
-            outputfile << ";" << endl;
+            //three for loops to output for loop tokens in postfix.
+            infixToPostfix(pf1), infixToPostfix(pf2), infixToPostfix(pf3);
+            outputfile << "For Expression 1\n";
+            for (const string& token : pf1) {
+                outputfile << token << "\n";
+            }
+            outputfile << "\n";
+            outputfile << "For Expression 2\n";
+            for (const string& token : pf2) {
+                outputfile << token << "\n";
+            }
+            outputfile << "\n";
+            outputfile<< "For Expression 3\n";
+            for (const string& token : pf3) {
+                outputfile << token << "\n";
+            }
+            outputfile << "end for\n";
+            pf1.clear(), pf2.clear(), pf3.clear();
         }
         else if (tokenName == "if") {
-            outputfile << "if" << endl;
+            outputfile << "if" << "\n";
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             //outputfile << tokenName << endl;
@@ -779,9 +790,8 @@ void secondTokenList(string originalList, string newList) {
             infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
             //add parenthesis around parameters.
             for (const string& token : postFixAssignment) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
-            outputfile << "\n";
             postFixAssignment.clear();
             outputfile << ";" << endl;
             outputfile << "{" << endl;
@@ -810,7 +820,7 @@ void secondTokenList(string originalList, string newList) {
             outputfile << ";" << endl;
         }
         else{
-            outputfile << "assignment" << endl; // CRISTIANS LOGIC WILL GO HERE....
+            outputfile << "assignment" << "\n"; // CRISTIANS LOGIC WILL GO HERE....
             //postFixAssignment.push_back(tokenName);
             while (tokenName != ";"){
                 //outputfile << tokenName << endl;
@@ -824,12 +834,11 @@ void secondTokenList(string originalList, string newList) {
             infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
             //add parenthesis around parameters.
             for (const string& token : postFixAssignment) {
-                outputfile << token << " ";
+                outputfile << token << "\n";
             }
             postFixAssignment.clear();
 
-            outputfile << "\n;" << endl;
-
+            outputfile << ";" << endl;
         }
     }
 }
@@ -840,7 +849,9 @@ int main() {
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
     //change the file you want to test here
+
     testFile = "programming_assignment_5-test_file_5.c";
+
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
