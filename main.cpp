@@ -761,17 +761,17 @@ void secondTokenList(string originalList, string newList) {
             for (const string& token : pf1) {
                 outputfile << token << "\n";
             }
-            outputfile << "\n";
+            outputfile << ";" << endl;
             outputfile << "For Expression 2\n";
             for (const string& token : pf2) {
                 outputfile << token << "\n";
             }
-            outputfile << "\n";
+            outputfile << ";"  << endl;
             outputfile<< "For Expression 3\n";
             for (const string& token : pf3) {
                 outputfile << token << "\n";
             }
-            outputfile << "end for\n";
+            outputfile << ";" << endl;
             pf1.clear(), pf2.clear(), pf3.clear();
         }
         else if (tokenName == "if") {
@@ -850,7 +850,7 @@ int main() {
     //cin >> testFile;
     //change the file you want to test here
 
-    testFile = "programming_assignment_5-test_file_5.c";
+    testFile = "programming_assignment_5-test_file_2.c";
 
     ifstream inputfile(testFile);
     if (!inputfile){
