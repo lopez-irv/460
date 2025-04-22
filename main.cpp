@@ -366,6 +366,7 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
     }
 
     ofstream ass4("output4.txt");
+    ofstream ass5("part5.txt");
 
     vector<vector<string>> scope_variable_list(5);
 
@@ -397,6 +398,7 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
             dataType = tokenStack.at(i).first;
             i+=1;
             id_name = tokenStack.at(i).first;
+            ass5 << tokenStack.at(i).first << endl;
             i+=1;
             isArray = false;
             array_size = 0;
@@ -436,6 +438,7 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
             dataType = "NOT APPLICABLE";
             i+=1;
             id_name = tokenStack.at(i).first;
+            ass5 << tokenStack.at(i).first << endl;
             i+=1;
             isArray = false;
             array_size = 0;
@@ -608,12 +611,31 @@ void infixToPostfix(vector<string>& infix) {
     }
 
     infix = postFix;
+
+}
+
+bool isAFunction(const vector<string>& funList, const string& curFunction) {
+    for (int i = 0; i < funList.size(); ++i) {
+        if (curFunction == funList.at(i))
+            return true;
+    }
+    return false;
 }
 
 // this is where the new token list function starts
 //function to create the new token list
 //takes the token list that is outputed form part 2, reads through it and creates another accordingly
 void secondTokenList(string originalList, string newList) {
+    //read from to get the function and procedure names
+    ifstream flist("part5.txt");
+    string curFunctionName = "";
+    vector<string> functionList;
+
+    while (getline(flist, curFunctionName)) {
+        functionList.push_back(curFunctionName);
+    }
+
+
     ifstream inputfile(originalList);
     ofstream outputfile(newList);
 
@@ -624,7 +646,21 @@ void secondTokenList(string originalList, string newList) {
     while (getline(inputfile, tokenType)){
         getline(inputfile, tokenName);
 
-        if (tokenName == "function" || tokenName == "procedure") {
+        if (isAFunction(functionList, tokenName)) {
+            outputfile << "CALL" << endl;
+            outputfile << tokenName << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            while (tokenName != ";") {
+                outputfile << tokenName << endl;
+                getline(inputfile, tokenType);
+                getline(inputfile, tokenName);
+            }
+            outputfile << "END CALL" << endl;
+
+        }
+
+        else if (tokenName == "function" || tokenName == "procedure") {
             outputfile << "DECLARATION" << endl;
             while (tokenName != ")") {
                 getline(inputfile, tokenType);
@@ -749,6 +785,7 @@ void secondTokenList(string originalList, string newList) {
             for (const string& token : postFixAssignment) {
                 outputfile << token << " ";
             }
+            postFixAssignment.clear();
 
             outputfile << "\nend assignemnt" << endl;
 
@@ -762,7 +799,7 @@ int main() {
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
     //change the file you want to test here
-    testFile = "programming_assignment_5-test_file_2.c";
+    testFile = "programming_assignment_5-test_file_5.c";
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
