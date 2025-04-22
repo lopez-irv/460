@@ -725,7 +725,13 @@ void secondTokenList(string originalList, string newList) {
             outputfile << "end if" << endl;
             outputfile << "L_BRACE" << endl;
         }
-
+        else if (tokenName == "else") {
+            outputfile << tokenName << endl;
+            getline(inputfile, tokenType);
+            getline(inputfile, tokenName);
+            outputfile << tokenName << endl;
+            outputfile << "end else\n";
+        }
         else{
             outputfile << "assignment" << endl; // CRISTIANS LOGIC WILL GO HERE....
             //postFixAssignment.push_back(tokenName);
