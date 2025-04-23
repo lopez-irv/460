@@ -703,10 +703,15 @@ void secondTokenList(string originalList, string newList) {
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
             while (tokenName != ";") {
-                outputfile << tokenName << endl;
+                postFixAssignment.push_back(tokenName);
                 getline(inputfile, tokenType);
                 getline(inputfile, tokenName);
             }
+            infixToPostfix(postFixAssignment);
+            for (const string& token : postFixAssignment) {
+                outputfile << token << "\n";
+            }
+            postFixAssignment.clear();
             outputfile << ";" << endl;
         }
         else if (tokenName == "while") {
@@ -728,6 +733,7 @@ void secondTokenList(string originalList, string newList) {
             }
             postFixAssignment.clear();
             outputfile << ";" << endl;
+            outputfile << "BEGIN BLOCK\n";
         }
         else if (tokenName == "for") {
 
@@ -794,18 +800,26 @@ void secondTokenList(string originalList, string newList) {
             }
             infixToPostfix(postFixAssignment); //converts assignment to postfix, add logic to
             //add parenthesis around parameters.
+            string functionName;
+            for(int i = 0; i <postFixAssignment.size(); ++i) {
+                functionName = postFixAssignment.at(i);
+                if((isAFunction(functionList, functionName))) {
+                    postFixAssignment.insert(postFixAssignment.begin() + i + 1, "(");
+                    postFixAssignment.insert(postFixAssignment.begin() + postFixAssignment.size() -1, ")");
+                }
+            }
             for (const string& token : postFixAssignment) {
                 outputfile << token << "\n";
             }
             postFixAssignment.clear();
             outputfile << ";" << endl;
-            outputfile << "{" << endl;
+            outputfile << "BEGIN BLOCK" << endl;
         }
         else if (tokenName == "else") {
             outputfile << tokenName << endl;
             getline(inputfile, tokenType);
             getline(inputfile, tokenName);
-            outputfile << tokenName << endl;
+            outputfile << "BEGIN BLOCK" << endl;
             outputfile << ";" << endl;
         }
         else if (tokenName == "printf") {
