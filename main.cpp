@@ -877,8 +877,11 @@ int main() {
     //cout << "enter the name of the test file" << endl;
     //cin >> testFile;
     //change the file you want to test here
-
-    testFile = "programming_assignment_5-test_file_1.c";
+    string num;
+    cout << "Welcome to programming assignment 5!\n";
+    cout << "please enter any number from 1 - 5 to test a file: ";
+    cin >> num;
+    testFile = "programming_assignment_5-test_file_" + num + ".c";
 
     ifstream inputfile(testFile);
     if (!inputfile){
@@ -1065,6 +1068,10 @@ int main() {
 
     //start of assinment 4
     createSymbolTable(tokenStack);
+    string originalList = "tokenlist.txt";
+    string newList = "newtokenlist.txt";
+
+    secondTokenList(originalList, newList);
 
     //start of assignment 5
     ifstream ffs ("newtokenlist.txt");
@@ -1113,11 +1120,6 @@ int main() {
     }
 
     MyTree->printTree();
-
-    string originalList = "tokenlist.txt";
-    string newList = "newtokenlist.txt";
-
-    secondTokenList(originalList, newList);
-
+    cout << "success!!\ncheck tree.txt for output :)\n";
     return 0;
 }
