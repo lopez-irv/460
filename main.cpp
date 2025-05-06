@@ -878,14 +878,15 @@ int main() {
     //cin >> testFile;
     //change the file you want to test here
     string num;
-    cout << "Welcome to programming assignment 5!\n";
-    cout << "please enter any number from 1 - 5 to test a file: ";
+    cout << "Welcome to programming assignment 6!\n";
+    cout << "please enter any number from 1 - 3 to test a file: ";
     cin >> num;
-    testFile = "programming_assignment_5-test_file_" + num + ".c";
+    testFile = "programming_assignment_6-test_file_" + num + ".c";
 
     ifstream inputfile(testFile);
     if (!inputfile){
         cout << "Error file could not be opened!" << endl;
+        exit(1);
     }
 
     ofstream output("outputfile.txt");
@@ -1003,68 +1004,7 @@ int main() {
     auto tokenStack = tokenize("outputfile.txt");
 
 
-    //start of assignment 3
-    /*
-    ifstream ffs ("tokenlist.txt");
 
-    if (!ffs) {
-        cerr << "outpy file tokenlist could not be opened";
-    }
-
-    string tokenType;
-    string tokenName;
-
-    getline(ffs, tokenType);
-    getline(ffs, tokenName);
-    TreeNode *tmpNode = new TreeNode(tokenName, tokenType);
-    LCRSTree *MyTree = new LCRSTree(tmpNode);
-
-
-    while (getline(ffs, tokenType)) {
-        getline(ffs, tokenName);
-
-        tmpNode = new TreeNode(tokenName, tokenType);
-        if (tokenName == "{" || tokenName == "}" ) {
-            MyTree->addChild(tmpNode);
-            getline(ffs, tokenType);
-            getline(ffs, tokenName);
-            tmpNode = new TreeNode(tokenName, tokenType);
-            if (tokenName == "}") {
-                MyTree->addChild(tmpNode);
-                getline(ffs, tokenType);
-                getline(ffs, tokenName);
-                tmpNode = new TreeNode(tokenName, tokenType);
-                MyTree->addChild(tmpNode);
-            }
-            else{
-                MyTree->addChild(tmpNode);
-            }
-        }
-        else if ( tokenName == ";"){
-            MyTree->addSibling(tmpNode);
-            getline(ffs, tokenType);
-            getline(ffs, tokenName);
-            tmpNode = new TreeNode(tokenName, tokenType);
-            if (tokenName == "}") {
-                MyTree->addChild(tmpNode);
-                getline(ffs, tokenType);
-                getline(ffs, tokenName);
-                tmpNode = new TreeNode(tokenName, tokenType);
-                MyTree->addChild(tmpNode);
-            }
-            else{
-                MyTree->addChild(tmpNode);
-            }
-
-        }
-        else{
-            MyTree->addSibling(tmpNode);
-        }
-
-    }
-
-    MyTree->printTree();
-    */
 
     //start of assinment 4
     createSymbolTable(tokenStack);
