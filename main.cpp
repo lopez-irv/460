@@ -871,6 +871,69 @@ void secondTokenList(string originalList, string newList) {
     }
 }
 
+//create new trees for each function
+//This function goes through the AST and the Symbol table at the same time  to determine
+//which declarations in the AST are functions and procedures to separate them and create
+//individual trees for each
+//each tree will be stored in an unorderd_map
+// map: <string(function name), tree>
+
+//takes no paramaters read from tree.txt and output4.txt
+void separate_trees() {
+    int thisNumber = 0;
+    ifstream treeFile("tree.txt");
+    ifstream symbolFile("output4.txt");
+
+    if (!treeFile || !symbolFile) {
+        cout << "files for part 6 are not found" << endl;
+        exit(61);
+    }
+
+    string tree1;
+    string symbol_name;
+    string symbol_type;
+    string trash;
+
+    while (getline(treeFile, tree1)) {
+        thisNumber +=1;
+        if (tree1 != "DECLARATION ") {
+            continue;
+        }
+        //if declaration, get the name and type lines
+        getline(symbolFile , symbol_name);
+        getline(symbolFile, symbol_type);
+        //get the actual type
+        istringstream string_type(symbol_type);
+        string type_word;
+
+        string_type >> type_word;
+        string_type >> type_word;
+
+        if (type_word != "function" && type_word != "procedure") {
+            getline(symbolFile, trash);
+            getline(symbolFile, trash);
+            getline(symbolFile, trash);
+            getline(symbolFile, trash);
+            getline(symbolFile, trash);
+            continue;
+        }
+        istringstream string_name(symbol_name);
+        string name_word;
+
+        string_name >> name_word;
+        string_name >> name_word;
+
+
+
+        getline(symbolFile, trash);
+        getline(symbolFile, trash);
+        getline(symbolFile, trash);
+        getline(symbolFile, trash);
+        getline(symbolFile, trash);
+    }
+    //cout << thisNumber;
+}
+
 int main() {
 
     string testFile;
@@ -1059,7 +1122,11 @@ int main() {
         }
     }
 
-    MyTree->printTree();
-    cout << "success!!\ncheck tree.txt for output :)\n";
+    //MyTree->printTree();
+    //cout << "success!!\ncheck tree.txt for output :)\n";
+
+    //start of part 6
+    separate_trees();
+
     return 0;
 }
