@@ -6,6 +6,7 @@
 #define ASSIGNMENT1_TREENODE_HPP
 using namespace std;
 #include <string>
+#include "symbolTable.hpp"
 
 
 class TreeNode {
@@ -15,6 +16,7 @@ public:
         sibling = nullptr;
         TokenName = name;
         TokenType = type;
+        sTable = NULL;
 
     }
 
@@ -22,6 +24,7 @@ public:
         child = nullptr;
         sibling = nullptr;
         TokenName = name;
+        sTable = NULL;
     }
 
 
@@ -49,9 +52,11 @@ public:
         return sibling;
     }
 
-private:
+    symbolTable *sTable;
     TreeNode* child;
     TreeNode* sibling;
+private:
+
     string TokenName;
     string TokenType ;
 

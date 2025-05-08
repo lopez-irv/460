@@ -77,8 +77,28 @@ public:
             }
         }
     }
-private:
     TreeNode* root;
+
+    int treeSize() {
+        int nodes = 0;
+        TreeNode* thisNode = root;
+
+        while(thisNode != nullptr){
+            nodes++;
+            if (thisNode->get_child() == NULL && thisNode->get_sibling() == NULL) {
+                break;
+            }
+            else if (thisNode->get_child() == NULL) {
+                thisNode = thisNode->get_sibling();
+            }
+            else {
+                thisNode = thisNode->get_child();
+            }
+        }
+        return nodes;
+    }
+private:
+   // TreeNode* root;
     TreeNode* currNode;
     TreeNode* printNode;
     TreeNode* prevNode;

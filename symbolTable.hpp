@@ -19,6 +19,11 @@ public:
         scope = where;
         isArray = false;
         array_size = 0;
+        if (data == "int")
+            datavalue = "0";
+        else if (data == "char")
+            datavalue = "";
+
     }
 
     symbolTable(string name, string type, string data, int where, int size, bool arrayStatus) {
@@ -36,6 +41,8 @@ public:
     bool isArray;
     int array_size;
     int scope;
+    string datavalue;
+
 
     vector <symbolTable> paramater_list;
 };

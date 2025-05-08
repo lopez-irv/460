@@ -9,12 +9,16 @@
 #include "LCRSTree.hpp"
 #include <list>
 #include "symbolTable.hpp"
+#include <map>
+#include <unordered_map>
+#include <stack>
 using namespace std;
 
 vector<string> reserved_word = {"function", "procedure", "class", "struct", "namespace", "void","printf"  };
 vector<string> data_types = {"int", "char", "bool",  };
 
-
+//list <symbolTable> symTable;
+unordered_map<string , string> variables;
 
 void assignPrint(vector<pair<string, int>> tokenStack) {
     ofstream tokenList("tokenlist.txt");
@@ -359,7 +363,7 @@ bool checkIssues(vector<vector<string>> scope_list, string id_name, int scope) {
 //goes through the stack using getline
 //when a token of interst is incountered, perform approprite action
 //tokens of interest include procedure, function and a variable type (int, char, bool) fixme
-void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
+list<symbolTable> createSymbolTable(vector<pair<string, int>> const &tokenStack) {
     ofstream currentStack("currStack.txt");
     for (int i = 0; i < tokenStack.size(); ++i) {
          currentStack << tokenStack.at(i).first << " " << tokenStack.at(i).second << endl;
@@ -542,6 +546,9 @@ void createSymbolTable(vector<pair<string, int>> const &tokenStack) {
             ass4 << "SCOPE:" << value.paramater_list.at(i).scope << endl << endl;
         }
     }
+
+    //cout << "gear" << endl;
+    return symTable;
 }
 
 int getPrecedence(const string& token) {
@@ -879,59 +886,114 @@ void secondTokenList(string originalList, string newList) {
 // map: <string(function name), tree>
 
 //takes no paramaters read from tree.txt and output4.txt
-void separate_trees() {
-    int thisNumber = 0;
-    ifstream treeFile("tree.txt");
-    ifstream symbolFile("output4.txt");
+void separate_trees(unordered_map<string, LCRSTree*> *mapy, LCRSTree* myTree) {
+    int bCount = 0;
+    TreeNode *curNode = myTree->root;
+    while (curNode != NULL) {
+        if (curNode->sTable == NULL) {
+            if (curNode->get_sibling() == NULL){
+                curNode = curNode->get_child();
+            }
+            else {
+                curNode = curNode->get_sibling();
+            }
+                continue;
+        }
+        if (curNode->sTable->identifier_type == "function" || curNode->sTable->identifier_type == "procedure" ) {
+            TreeNode *tmpNode = new TreeNode(curNode->sTable->indentifier_name);
+            tmpNode->sTable = curNode->sTable;
+            LCRSTree* newTree = new LCRSTree(tmpNode);
+            TreeNode* curNewNode = newTree->root;
 
-    if (!treeFile || !symbolFile) {
-        cout << "files for part 6 are not found" << endl;
-        exit(61);
+            curNode = curNode->get_child();
+            curNewNode->set_child(curNode);
+            curNewNode = curNewNode->get_child();
+
+            while (curNode != NULL) {
+                if (curNode->get_NodeName() == "BEGIN BLOCK") {
+                    bCount++;
+                }
+                else if (curNode->get_NodeName() == "END BLOCK") {
+                    bCount--;
+                }
+                if (bCount == 0) {
+                    curNode = curNewNode->get_child();
+                    curNewNode->child = NULL;
+                    curNewNode->sibling = NULL;
+                    string funcName = newTree->root->sTable->indentifier_name;
+                    mapy->insert({funcName, newTree});
+                    //cout << "size at time of creation " << mapy->at(funcName)->treeSize() << endl;
+                    //curNode = curNewNode->get_child();
+                    break;
+                }
+                if (curNode->get_sibling() == NULL) {
+                    curNode = curNode->get_child();
+                    curNewNode->set_child(curNode);
+                    curNewNode = curNewNode->get_child();
+                } else{
+                    curNode = curNode->get_sibling();
+                    curNewNode->set_sibling(curNode);
+                    curNewNode = curNewNode->get_sibling();
+                }
+            }
+        }
+        else {
+
+        }
+
+    }
+}
+
+// input: sum = n * (n + 1) * (2 * n + 1) / 6;
+//postfix output:  sum n n 1 + * 2 n * 1 + * 6 / =
+int postfixEvaluator(const vector<string>& postfix) {
+    stack<int> z;
+
+
+    for (const string& token : postfix) {
+        if (token == "+" || token == "-" || token == "*" || token == "/") {
+            int right = z.top(); z.pop();
+            int left = z.top(); z.pop();
+
+
+            int result = 0;
+            if (token == "+") result = left + right;
+            else if (token == "-") result = left - right;
+            else if (token == "*") result = left * right;
+            else if (token == "/") result = left / right;
+
+
+            z.push(result);
+        } else {
+            // Assume it's a number
+            z.push(stoi(token));
+        }
     }
 
-    string tree1;
-    string symbol_name;
-    string symbol_type;
-    string trash;
 
-    while (getline(treeFile, tree1)) {
-        thisNumber +=1;
-        if (tree1 != "DECLARATION ") {
-            continue;
-        }
-        //if declaration, get the name and type lines
-        getline(symbolFile , symbol_name);
-        getline(symbolFile, symbol_type);
-        //get the actual type
-        istringstream string_type(symbol_type);
-        string type_word;
+    return z.top();
+}
 
-        string_type >> type_word;
-        string_type >> type_word;
-
-        if (type_word != "function" && type_word != "procedure") {
-            getline(symbolFile, trash);
-            getline(symbolFile, trash);
-            getline(symbolFile, trash);
-            getline(symbolFile, trash);
-            getline(symbolFile, trash);
-            continue;
-        }
-        istringstream string_name(symbol_name);
-        string name_word;
-
-        string_name >> name_word;
-        string_name >> name_word;
-
-
-
-        getline(symbolFile, trash);
-        getline(symbolFile, trash);
-        getline(symbolFile, trash);
-        getline(symbolFile, trash);
-        getline(symbolFile, trash);
+void printf(vector<string> Strings) {
+    if (Strings.size() == 1) {
+        cout << Strings.at(0);
     }
-    //cout << thisNumber;
+    else {
+        string nextString;
+        string curString = Strings.at(0);
+        int StringsPoint = 1;
+
+        for (int i = 0; i < curString.size(); ++i) {
+            if (curString.at(i) == '%'){
+                //cout <<
+            }
+        }
+    }
+}
+
+
+void evaluateTree(vector<pair<LCRSTree*, TreeNode*>> &runningStack) {
+
 }
 
 int main() {
@@ -1070,7 +1132,10 @@ int main() {
 
 
     //start of assinment 4
-    createSymbolTable(tokenStack);
+    //auto it = symTable.begin();
+
+    auto symbol = createSymbolTable(tokenStack);
+    auto it = symbol.begin();
     string originalList = "tokenlist.txt";
     string newList = "newtokenlist.txt";
 
@@ -1087,9 +1152,11 @@ int main() {
     string tokenName;
     bool prevWasBrace = false;
 
-    //getline(ffs, tokenType);
+    //getline(ffs, tokenType); //fixme
     getline(ffs, tokenName);
     TreeNode *tmpNode = new TreeNode(tokenName);
+    tmpNode->sTable = &*it;
+    ++it;
     LCRSTree *MyTree = new LCRSTree(tmpNode);
 
 
@@ -1104,6 +1171,11 @@ int main() {
                 continue;
             }
             else {
+                if (tokenName == "DECLARATION") {
+                    tmpNode->sTable = &*it;
+                    if (it != symbol.end())
+                        ++it;
+                }
                 MyTree->addChild(tmpNode);
                 prevWasBrace = false;
                 continue;
@@ -1117,16 +1189,46 @@ int main() {
             prevWasBrace = true;
         }
         else {
+            if (tokenName == "DECLARATION") {
+                tmpNode->sTable = &*it;
+                if (it != symbol.end())
+                    ++it;
+            }
             MyTree->addSibling(tmpNode);
             prevWasBrace = false;
         }
     }
 
-    //MyTree->printTree();
+    MyTree->printTree();
+    //cout << MyTree->root->sTable->indentifier_name << endl;
+    //cout << MyTree->root->get_child()->get_child()->sTable->indentifier_name << endl;
     //cout << "success!!\ncheck tree.txt for output :)\n";
 
     //start of part 6
-    separate_trees();
+
+    //we have a full tree with symbol tables
+    //plan:
+    //separate trees and fill out a map with said trees
+    //we need
+    //a map
+    unordered_map <string, LCRSTree*> treeMap;
+    separate_trees(&treeMap, MyTree);
+
+    //cout << "original tree size: " << MyTree->treeSize() << endl;
+    cout << treeMap.size() << endl;
+    for (const auto& pair : treeMap) {
+        cout << pair.first << " " << pair.second->treeSize() << endl ;  // prints only the keys
+    }
+
+    //we now have the map of trees that are correct
+    // we need to call them
+
+    vector<pair<LCRSTree*, TreeNode*>> runNingStackOG;
+    TreeNode* inTreePosition = treeMap.at("main")->root;
+
+    runNingStackOG.emplace_back(treeMap.at("main"), inTreePosition);
+
+    evaluateTree(runNingStackOG);
 
     return 0;
 }
