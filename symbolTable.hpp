@@ -33,6 +33,10 @@ public:
         scope = where;
         isArray = arrayStatus;
         array_size = size;
+        if (data == "int")
+            datavalue = "0";
+        else if (data == "char")
+            datavalue = "";
     }
 
     string indentifier_name;

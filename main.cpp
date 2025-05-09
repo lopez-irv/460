@@ -18,7 +18,7 @@ vector<string> reserved_word = {"function", "procedure", "class", "struct", "nam
 vector<string> data_types = {"int", "char", "bool",  };
 
 //list <symbolTable> symTable;
-unordered_map<string , string> variables;
+vector<unordered_map<string , symbolTable*>> variables(3);
 
 void assignPrint(vector<pair<string, int>> tokenStack) {
     ofstream tokenList("tokenlist.txt");
@@ -528,7 +528,8 @@ list<symbolTable> createSymbolTable(vector<pair<string, int>> const &tokenStack)
         else
             ass4 << "DATATYPE_IS_ARRAY: " << "no" << endl;
         ass4 << "DATATYPE_ARRAY_SIZE: " << value.array_size << endl;
-        ass4 << "SCOPE: " << value.scope << endl << endl;
+        ass4 << "SCOPE: " << value.scope << endl;
+        ass4 << "VALUE OF VAR: " << value.datavalue <<  endl << endl;
     }
     for(auto value: symTable) {
         if (value.paramater_list.empty()) {
@@ -906,10 +907,14 @@ void separate_trees(unordered_map<string, LCRSTree*> *mapy, LCRSTree* myTree) {
             TreeNode* curNewNode = newTree->root;
 
             curNode = curNode->get_child();
-            curNewNode->set_child(curNode);
+            curNewNode->child = curNode;
             curNewNode = curNewNode->get_child();
 
             while (curNode != NULL) {
+                if (curNode->get_NodeName() == "DECLARATION") {
+                    int varScope = curNode->sTable->scope;
+                    variables.at(varScope).emplace(curNode->sTable->indentifier_name, curNode->sTable);
+                }
                 if (curNode->get_NodeName() == "BEGIN BLOCK") {
                     bCount++;
                 }
@@ -928,7 +933,7 @@ void separate_trees(unordered_map<string, LCRSTree*> *mapy, LCRSTree* myTree) {
                 }
                 if (curNode->get_sibling() == NULL) {
                     curNode = curNode->get_child();
-                    curNewNode->set_child(curNode);
+                    curNewNode->child = curNode;
                     curNewNode = curNewNode->get_child();
                 } else{
                     curNode = curNode->get_sibling();
@@ -938,10 +943,15 @@ void separate_trees(unordered_map<string, LCRSTree*> *mapy, LCRSTree* myTree) {
             }
         }
         else {
-
+            int varScope = curNode->sTable->scope;
+            variables.at(varScope).emplace(curNode->sTable->indentifier_name, curNode->sTable);
         }
 
     }
+    //for (int i = 0; i < variables.size(); ++i) {
+    //    cout << "number of variables:" << endl;
+    //    cout << variables.at(i).size() << endl;
+    //}
 }
 
 // input: sum = n * (n + 1) * (2 * n + 1) / 6;
@@ -974,7 +984,7 @@ int postfixEvaluator(const vector<string>& postfix) {
     return z.top();
 }
 
-void printf(vector<string> Strings) {
+void printfunction(vector<string> Strings) {
     if (Strings.size() == 1) {
         cout << Strings.at(0);
     }
@@ -993,6 +1003,45 @@ void printf(vector<string> Strings) {
 
 
 void evaluateTree(vector<pair<LCRSTree*, TreeNode*>> &runningStack) {
+    if (runningStack.empty()) {
+        return;
+    }
+    TreeNode* currentNode = runningStack.back().second;
+    while(currentNode != NULL) {
+        //cout << currentNode->get_NodeName() << endl;
+        if (currentNode->get_NodeName() == "DECLARATION") {
+            currentNode = currentNode->get_child();
+            continue;
+        }
+        else if (currentNode->get_NodeName() == "BEGIN BLOCK") {
+            currentNode = currentNode->get_child();
+            continue;
+        }
+        else if (currentNode->get_NodeName() == "END BLOCK") {
+            currentNode = currentNode->get_child();
+            continue;
+        }
+        else if (currentNode->get_NodeName() == "printf") {
+            vector<string> printStrings;
+            string tmp;
+            while (currentNode->get_sibling() != NULL) {
+                currentNode = currentNode->get_sibling();
+                tmp = currentNode->get_NodeName();
+                printStrings.push_back(tmp);
+            }
+            //tmp = currentNode->get_NodeName();
+            //printStrings.push_back(tmp);
+            printfunction(printStrings);
+
+        }
+
+        if (currentNode->get_child() == NULL) {
+            currentNode = currentNode->get_sibling();
+        }
+        else {
+            currentNode = currentNode->get_child();
+        }
+    }
 
 }
 
@@ -1200,9 +1249,7 @@ int main() {
     }
 
     MyTree->printTree();
-    //cout << MyTree->root->sTable->indentifier_name << endl;
-    //cout << MyTree->root->get_child()->get_child()->sTable->indentifier_name << endl;
-    //cout << "success!!\ncheck tree.txt for output :)\n";
+
 
     //start of part 6
 
@@ -1215,20 +1262,25 @@ int main() {
     separate_trees(&treeMap, MyTree);
 
     //cout << "original tree size: " << MyTree->treeSize() << endl;
-    cout << treeMap.size() << endl;
-    for (const auto& pair : treeMap) {
-        cout << pair.first << " " << pair.second->treeSize() << endl ;  // prints only the keys
-    }
+    //cout << treeMap.size() << endl;
+    //for (const auto& pair : treeMap) {
+    //    cout << pair.first << " " << pair.second->treeSize() << endl ;  // prints only the keys
+    //}
 
     //we now have the map of trees that are correct
     // we need to call them
 
-    vector<pair<LCRSTree*, TreeNode*>> runNingStackOG;
+    vector<pair<LCRSTree*, TreeNode*>> runningStackOG;
     TreeNode* inTreePosition = treeMap.at("main")->root;
+    //cout << inTreePosition << " here";
+    runningStackOG.emplace_back(treeMap.at("main"), inTreePosition);
 
-    runNingStackOG.emplace_back(treeMap.at("main"), inTreePosition);
-
-    evaluateTree(runNingStackOG);
+    //calling the evaluator with just main on there to start
+    evaluateTree(runningStackOG);
+    //cout << runningStackOG.back().second << endl;
+    //cout << runningStackOG.back().second->get_child() << endl;
+    //cout << "done";
+    //cout << treeMap.at("sum_of_first_n_squares")->root->sTable->paramater_list.at(0).datavalue;
 
     return 0;
 }
