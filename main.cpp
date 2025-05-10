@@ -12,6 +12,7 @@
 #include <map>
 #include <unordered_map>
 #include <stack>
+#include <variant>
 using namespace std;
 
 vector<string> reserved_word = {"function", "procedure", "class", "struct", "namespace", "void","printf"  };
@@ -19,6 +20,9 @@ vector<string> data_types = {"int", "char", "bool",  };
 
 //list <symbolTable> symTable;
 vector<unordered_map<string , symbolTable*>> variables(3);
+
+unordered_map <string, LCRSTree*> treeMap;
+
 
 void assignPrint(vector<pair<string, int>> tokenStack) {
     ofstream tokenList("tokenlist.txt");
@@ -956,12 +960,62 @@ void separate_trees(unordered_map<string, LCRSTree*> *mapy, LCRSTree* myTree) {
 
 // input: sum = n * (n + 1) * (2 * n + 1) / 6;
 //postfix output:  sum n n 1 + * 2 n * 1 + * 6 / =
-int postfixEvaluator(const vector<string>& postfix) {
+int postfixEvaluator( vector<string> postfix, const int currentScope) {
+    LCRSTree* tmptree;
+    for (const auto& pair: treeMap) {
+        if (pair.first != "main") {
+            tmptree = pair.second;
+        }
+    }
+    for (int i = 0; i < postfix.size(); ++i) {
+        if (variables.at(currentScope).find(postfix.at(i)) != variables.at(currentScope).end()) {
+            postfix.at(i) = variables.at(currentScope).at(postfix.at(i))->datavalue;
+        }
+        
+    }
+
+    for (int i = 0; i < postfix.size(); ++i) {
+        if (postfix.at(i) == tmptree->root->sTable->paramater_list.at(0).indentifier_name) {
+            postfix.at(i) = tmptree->root->sTable->paramater_list.at(0).datavalue;
+        }
+    }
+/*
+    postfix.erase(remove(postfix.begin(), postfix.end(), "("), postfix.end());
+    postfix.erase(remove(postfix.begin(), postfix.end(), ")"), postfix.end());
+
+
+    bool haveTwo = false;
+    int whereTwo;
+    for (int i = 0; i < postfix.size(); ++i) {
+        if (postfix.at(i) == "&&") {
+            haveTwo = true;
+            whereTwo = i;
+            break;
+        }
+    }
+
+    if (haveTwo) {
+        vector<string> part1;
+        vector<string> part2;
+        for (int i = 0; i < whereTwo; ++i) {
+
+        }
+    }
+
+    string comparison;
+    string split;
+    for (int i = 0; i < postfix.size(); ++i) {
+        if (postfix.at(i) == "==" || postfix.at(i) == ">=" || postfix.at(i) == "<=") {
+
+        }
+    }
+*/
     stack<int> z;
+    //cout << 't';
 
 
     for (const string& token : postfix) {
-        if (token == "+" || token == "-" || token == "*" || token == "/") {
+        if (token == "+" || token == "-" || token == "*" || token == "/" || token == "%") {
             int right = z.top(); z.pop();
             int left = z.top(); z.pop();
 
@@ -971,12 +1025,17 @@ int postfixEvaluator(const vector<string>& postfix) {
             else if (token == "-") result = left - right;
             else if (token == "*") result = left * right;
             else if (token == "/") result = left / right;
+            else if (token == "%") result = left % right;
 
 
             z.push(result);
-        } else {
+        }
+        //else if (token.)
+        else {
             // Assume it's a number
-            z.push(stoi(token));
+            int h = stoi(token);
+            z.push(h);
+            //cout << "";
         }
     }
 
@@ -984,27 +1043,131 @@ int postfixEvaluator(const vector<string>& postfix) {
     return z.top();
 }
 
+
+
 void printfunction(vector<string> Strings) {
+    cout << "\n";
     if (Strings.size() == 1) {
         cout << Strings.at(0);
     }
-    else {
+    else { //there's more than 1 string
         string nextString;
         string curString = Strings.at(0);
-        int StringsPoint = 1;
-
-        for (int i = 0; i < curString.size(); ++i) {
-            if (curString.at(i) == '%'){
-                //cout <<
+        int StringsLocation = 0;
+        bool stringCutShort = false;
+        bool hasNewLine = false; //would see something like
+        char currChar;
+        for(int i = 0; i < Strings.at(0).size(); ++i) { //checks first string to see if it has a newLine
+            currChar = Strings.at(0).at(i);
+            if(currChar == '\\') {
+                i++;
+                if(Strings.at(0).at(i) == 'n') {
+                    hasNewLine = true;
+                    break;
+                }
             }
         }
+        //if (hasNewLine) { cout <<"has new line!\n"; }
+        //printf ("sum of the squares of the first %d numbers = %d\n", n, sum);
+        int size = curString.size();
+        if(hasNewLine) {size-=2; } //chop of the newline if there's a newline , we will print it later.
+        for (int i = 0; i < size; ++i) {
+            if (curString.at(i) != '%' && !stringCutShort){ //prints everything up until the %d.
+                cout << curString.at(i);
+            }
+            else { //we have seen a %
+                stringCutShort = true;
+                StringsLocation++; //is now 1 then 2 in the next iteration
+            }
+            if(stringCutShort) { //we have seen the %d so now lets print nextString which is a variable!
+                cout << Strings.at(StringsLocation);
+                i++; //skips over the 'd' Aswell
+                stringCutShort = false;
+            }
+        }
+        if(hasNewLine) {cout << "\n";}
     }
 }
 
+void workIf(tuple<vector<string>, vector<string>, bool, TreeNode*> &ifCon, int cScope, TreeNode* pointToRoot) {
+    int toCompare;
+    LCRSTree* tmptree;
+    if (get<2>(ifCon) == false) {
+        vector<string> tmp1 = get<0>(ifCon);
+        string compy = tmp1.at(tmp1.size()-2);
+        string comps = tmp1.at(tmp1.size()-1);
+        auto compyCopy = compy;
+/*
+        for (const auto& pair: treeMap) {
+            if (pair.first != "main") {
+                tmptree = pair.second;
+            }
+        }
 
-void evaluateTree(vector<pair<LCRSTree*, TreeNode*>> &runningStack) {
+        if (variables.at(cScope).find(compy) != variables.at(cScope).end()) {
+            compy = variables.at(cScope).at(compy)->datavalue;
+        }
+
+        if (compy == tmptree->root->sTable->paramater_list.at(0).indentifier_name) {
+            compy = tmptree->root->sTable->paramater_list.at(0).datavalue;
+        }
+
+        tmp1.erase(tmp1.begin());
+        tmp1.pop_back();
+*/
+        tmp1.pop_back();
+        tmp1.pop_back();
+        toCompare = postfixEvaluator(tmp1, cScope);
+        if (comps == "==") {
+            if (compy != to_string(toCompare)) {
+                //return;
+            }
+        }
+        else if (comps == ">=") {
+            if (compy > to_string(toCompare)) {
+                //return
+            }
+        }
+        else if (comps == "<=") {
+            if (compy > to_string(toCompare)) {
+                //return
+            }
+        }
+
+        vector<string> tmp2 = get<1>(ifCon);
+        compy = tmp2.at(0);
+        compyCopy = compy;
+
+        /*if (variables.at(cScope).find(compy) != variables.at(cScope).end()) {
+            compy = variables.at(cScope).at(compy)->datavalue;
+        }
+
+        if (compy == tmptree->root->sTable->paramater_list.at(0).indentifier_name) {
+            compy = tmptree->root->sTable->paramater_list.at(0).datavalue;
+        }
+         */
+        tmp2.erase(tmp2.begin());
+        tmp2.pop_back();
+        int tried = postfixEvaluator(tmp2, cScope);
+        compy = to_string(tried);
+        if (variables.at(cScope).find(compyCopy) != variables.at(cScope).end()) {
+            variables.at(cScope).at(compyCopy)->datavalue = compy;
+        }
+        else
+            tmptree->root->sTable->paramater_list.at(0).datavalue = compy;
+    }
+}
+
+int evaluateTree(vector<pair<LCRSTree*, TreeNode*>> &runningStack, vector< string> paramaters) {
+    TreeNode* pointToRoot = runningStack.back().second;
+    int currentScope = runningStack.back().second->sTable->scope;
+    for (int i = 0; i < paramaters.size(); ++i) {
+        //string wet = paramaters.at(i);
+        pointToRoot->sTable->paramater_list.at(0).datavalue = paramaters.at(i);
+    }
+
     if (runningStack.empty()) {
-        return;
+        return 4785;
     }
     TreeNode* currentNode = runningStack.back().second;
     while(currentNode != NULL) {
@@ -1026,23 +1189,223 @@ void evaluateTree(vector<pair<LCRSTree*, TreeNode*>> &runningStack) {
             string tmp;
             while (currentNode->get_sibling() != NULL) {
                 currentNode = currentNode->get_sibling();
-                tmp = currentNode->get_NodeName();
-                printStrings.push_back(tmp);
+                string word = currentNode->get_NodeName();
+                if (variables.at(currentScope).find(word) != variables.at(currentScope).end()) {
+                    tmp = variables.at(currentScope).at(word)->datavalue;
+                    printStrings.push_back(tmp);
+                }
+                else {
+                    tmp = currentNode->get_NodeName();
+                    printStrings.push_back(tmp);
+                }
+
             }
-            //tmp = currentNode->get_NodeName();
-            //printStrings.push_back(tmp);
+
             printfunction(printStrings);
 
         }
+        else if (currentNode->get_NodeName() == "assignment") {
+            vector<string> mathStrings;
+            string tmp;
+            bool happen = false;
+            string ll;
 
-        if (currentNode->get_child() == NULL) {
+            while (currentNode->get_sibling() != NULL) {
+                currentNode = currentNode->get_sibling();
+                string word = currentNode->get_NodeName();
+
+                //if its a variable
+                if (variables.at(currentScope).find(word) != variables.at(currentScope).end()) {
+                    if (variables.at(currentScope).find(word)->second->isArray == true) {
+                        //we do array stuff
+                        currentNode = currentNode->get_sibling();
+                        tmp = currentNode->get_NodeName();
+                        currentNode = currentNode->get_sibling();
+                        tmp = currentNode->get_NodeName();
+                        variables.at(currentScope).find(word)->second->datavalue = tmp;
+                        currentNode = currentNode->get_sibling();
+                        tmp = currentNode->get_NodeName();
+                        currentNode = currentNode->get_sibling();
+                        //cout << variables.at(currentScope).find(word)->second->datavalue << endl;
+                        //cout << "done";
+                        happen = true;
+                        break;
+
+                    }
+                    else{
+                        //we do non array stuff
+                        //tmp = variables.at(currentScope).at(word)->datavalue;
+                        ll = word;
+                        mathStrings.push_back(word);
+
+                    }
+                }//if its a function
+                //call the function a nd evaluate
+                //whatever the fuction return we push that onto mathstring
+                //once all is done call postfix evaluator and make it owr
+                else if (treeMap.find(word) != treeMap.end()) {
+                    word = currentNode->get_NodeName();
+                    auto nextword = currentNode->get_sibling()->get_sibling()->get_NodeName();
+
+                    LCRSTree* reTree = treeMap.at(word);
+                    TreeNode* reRoot = reTree->root;
+                    runningStack.emplace_back(reTree, reRoot);
+                    vector<string> tmpParam;
+                    //for (int i = 0; i < reTree->root->sTable->paramater_list.size(); ++i) {
+                    //    tmpParam.push_back(reTree->root->sTable->paramater_list.at(i).datavalue);
+                    //}
+                    tmpParam.emplace_back(variables.at(currentScope).at(nextword)->datavalue);
+                    int returnValue = evaluateTree(runningStack, tmpParam);
+
+                    mathStrings.push_back(to_string(returnValue));
+                    runningStack.pop_back();
+                    currentNode = currentNode->get_sibling();
+                    currentNode = currentNode->get_sibling();
+                    currentNode = currentNode->get_sibling();
+                    //break;
+                    //cout << "limp" << endl;
+
+                }
+                //if its not a variable
+                else {
+                    tmp = currentNode->get_NodeName();
+                    mathStrings.push_back(tmp);
+
+                }
+
+
+            }
+            if(!happen) {
+                //ll = mathStrings.at(0);
+                mathStrings.erase(mathStrings.begin());
+                mathStrings.pop_back();
+                //cout << postfixEvaluator(mathStrings, currentScope) << endl;
+                int y = postfixEvaluator(mathStrings, currentScope);
+                if (variables.at(currentScope).find(ll) != variables.at(currentScope).end())
+                    variables.at(currentScope).at(ll)->datavalue = to_string(y);
+                else if (!runningStack.back().first->root->sTable->paramater_list.empty())
+                    runningStack.back().first->root->sTable->paramater_list.at(0).datavalue = ll;
+                currentNode = currentNode->get_child();
+            }
+        }
+
+        else if (currentNode->get_NodeName() == "if") {
+            tuple<vector<string>, vector<string>, bool,  TreeNode*> ifCallVec;
+            vector<string> ifString;
+            vector<string> trueString;
+            bool isElse = false;
+            //TreeNode* elsePoint = NULL;
+            //currentNode = currentNode->get_sibling();
+            while (currentNode->get_sibling() != NULL) {
+                currentNode = currentNode->get_sibling();
+                ifString.push_back(currentNode->get_NodeName());
+            }
+            currentNode = currentNode->get_child();
+            currentNode = currentNode->get_child();
+            while (currentNode->get_sibling() != NULL) {
+                //if it a print if
+                if (currentNode->get_NodeName() == "printf") {
+                    vector<string> printStrings;
+                    string tmp;
+                    while (currentNode->get_sibling() != NULL) {
+                        currentNode = currentNode->get_sibling();
+                        string word = currentNode->get_NodeName();
+                        if (variables.at(currentScope).find(word) != variables.at(currentScope).end()) {
+                            tmp = variables.at(currentScope).at(word)->datavalue;
+                            printStrings.push_back(tmp);
+                        }
+                        else {
+                            tmp = currentNode->get_NodeName();
+                            printStrings.push_back(tmp);
+                        }
+
+                    }
+                    trueString = printStrings;
+                    //printfunction(printStrings);
+                }
+                // if its an expression if
+                else {
+                    string word = currentNode->get_NodeName();
+                    while (currentNode->get_sibling() != NULL) {
+                        currentNode = currentNode->get_sibling();
+                        if (variables.at(currentScope).find(word) != variables.at(currentScope).end()) {
+                            string t2 = variables.at(currentScope).at(word)->datavalue;
+                            trueString.push_back(t2);
+                        }
+                        else {
+                            string tmp = currentNode->get_NodeName();
+                            trueString.push_back(tmp);
+                        }
+                    }
+                }
+                //currentNode = currentNode->get_sibling();
+                //ifString.push_back(currentNode->get_NodeName());
+            }
+            currentNode = currentNode->get_child();
+            auto lookAhead = currentNode;
+            lookAhead = lookAhead->get_child();
+            if (lookAhead->get_NodeName() == "else") {
+                isElse = true;
+                lookAhead = lookAhead->get_child();
+                lookAhead = lookAhead->get_child();
+                ifCallVec = make_tuple(ifString, trueString, isElse, lookAhead);
+            }
+            else {
+                ifCallVec = make_tuple(ifString, trueString, isElse, lookAhead);
+            }
+
+            workIf(ifCallVec, currentScope, pointToRoot);
+           // cout << "hh";
+        }
+
+        else if (currentNode->get_NodeName() == "CALL") {
             currentNode = currentNode->get_sibling();
+            LCRSTree* reTree = treeMap.at(currentNode->get_NodeName());
+            TreeNode* reRoot = reTree->root;
+            runningStack.emplace_back(reTree, reRoot);
+            vector<string> tmpParam;
+            for (int i = 0; i < reTree->root->sTable->paramater_list.size(); ++i) {
+                tmpParam.push_back(reTree->root->sTable->paramater_list.at(i).datavalue);
+            }
+
+
+            evaluateTree(runningStack, tmpParam);
+            //cout << "woow";//wow
+        }
+
+        else if (currentNode->get_NodeName() == "return") {
+            LCRSTree* tpTree;
+
+            for ( auto& pair: treeMap) {
+                if (pair.first != "main") {
+                    tpTree = pair.second;
+                }
+            }
+
+            currentNode = currentNode->get_sibling();
+            if (variables.at(currentScope).find(currentNode->get_NodeName()) != variables.at(currentScope).end()) {
+                int tr = stoi(variables.at(currentScope).at(currentNode->get_NodeName())->datavalue);
+                return tr;
+            }
+            else if (tpTree->root->sTable->paramater_list.at(0).indentifier_name == currentNode->get_NodeName()) {
+                int t = stoi(tpTree->root->sTable->paramater_list.at(0).datavalue);
+                return t;
+            } else
+                return 4785;
+
         }
         else {
-            currentNode = currentNode->get_child();
+            if (currentNode->get_child() == NULL) {
+                currentNode = currentNode->get_sibling();
+            }
+            else {
+                currentNode = currentNode->get_child();
+            }
         }
-    }
 
+    }
+    //runningStack.pop_back();
+    return 4785;
 }
 
 int main() {
@@ -1258,7 +1621,7 @@ int main() {
     //separate trees and fill out a map with said trees
     //we need
     //a map
-    unordered_map <string, LCRSTree*> treeMap;
+    //unordered_map <string, LCRSTree*> treeMap;
     separate_trees(&treeMap, MyTree);
 
     //cout << "original tree size: " << MyTree->treeSize() << endl;
@@ -1274,9 +1637,10 @@ int main() {
     TreeNode* inTreePosition = treeMap.at("main")->root;
     //cout << inTreePosition << " here";
     runningStackOG.emplace_back(treeMap.at("main"), inTreePosition);
+    vector<string> param;
 
     //calling the evaluator with just main on there to start
-    evaluateTree(runningStackOG);
+    evaluateTree(runningStackOG, param);
     //cout << runningStackOG.back().second << endl;
     //cout << runningStackOG.back().second->get_child() << endl;
     //cout << "done";
